@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Unit Tests
   - Example
   - Update to ReadMe File
+
+- Added UpdateServicesUpdateApproval Resource including:
+  - Resource
+  - Unit Tests
+  - Example
+  - Update to ReadMe File
   
 ### Changed
 

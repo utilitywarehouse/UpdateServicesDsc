@@ -118,6 +118,14 @@ Windows Server 2008 R2 SP1, Windows Server 2012 and Windows Server 2012 R2.
 * **RunRuleNow**: Run Approval Rule on existing content.
 * **ClientTargetingMode**: An enumerated value that describes if how the Target Groups are populated.
 
+**UpdateServicesUpdateApproval** resource has following properties:
+
+* **Ensure**: An enumerated value that describes if the Update Approval Rule exists.
+* **UpdateId**: The Update ID GUID in string format.
+* **RevisionNumber**: The Revision Number of Update which (in combination with UpdateId) uniquely identifies the update.
+* **ComputerTargetGroupName**: The Name of the Computer Target Group on which to define the approval.
+* **Action**: The Approval Action associated with the approval ('Install', 'NotApproved', 'Uninstall').
+
 ## Versions
 
 Plese refer to the [Changelog](CHANGELOG.md)

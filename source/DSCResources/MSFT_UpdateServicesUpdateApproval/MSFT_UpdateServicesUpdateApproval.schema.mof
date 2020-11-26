@@ -1,0 +1,10 @@
+[ClassVersion("1.0.0.0"), FriendlyName("UpdateServicesUpdateApproval")]
+class MSFT_UpdateServicesUpdateApproval : OMI_BaseResource
+{
+    [Write, Description("An enumerated value that describes if the WSUS Update Approval is configured.\nPresent {default}  \nAbsent   \n"), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
+    [Key, Description("The Update ID GUID in string format.")] String UpdateId;
+    [Key, Description("The Revision Number of Update which (in combination with UpdateId) uniquely identifies the update.")] uint16 RevisionNumber;
+    [Key, Description("The Name of the Computer Target Group on which to define the approval.")] String ComputerTargetGroupName;
+    [Write, Description("The Approval Action associated with the approval.\nInstall {default} \nNotApproved  \nUninstall \n"), ValueMap{"Install","NotApproved","Uninstall"}, Values{"Install","NotApproved","Uninstall"}] String Action;
+    [Read, Description("ID / GUID of the Update Approval (where found).")] String Id;
+};

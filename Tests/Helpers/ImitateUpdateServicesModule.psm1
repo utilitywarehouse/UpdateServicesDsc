@@ -2,6 +2,8 @@ function Get-WsusServer
 {
     $WsusServer = [pscustomobject] @{
         Name = 'ServerName'
+        # the following properties are used for mocking purposes only
+        UpdateRevisionId = $null
     }
 
     $ApprovalRule = [scriptblock]{
@@ -151,6 +153,81 @@ function Get-WsusServer
         return $ComputerTargetGroups
     }
 
+    $Updates = [scriptblock]{
+        $Updates = @(
+            [pscustomobject] @{
+                Id = [pscustomobject] @{
+                    UpdateId = 'bb8a1680-c531-4cd7-8eb1-38f23bda31a6'
+                    RevisionNumber = 201
+                }
+                Title = 'Critical Update for...'
+                UpdateApprovals = @(
+                    [pscustomobject] @{
+                        Id = [pscustomobject] @{
+                            GUID = 'a96e9d8f-23b8-429c-ad0d-11a41d6f891e'
+                        }
+                        Action = 'Install'
+                        ComputerTargetGroupId = '4be27a8d-b969-4a8a-9cae-ec6b3a282b0b'
+                    },
+                    [pscustomobject] @{
+                        Id = [pscustomobject] @{
+                            GUID = 'ad437fc1-8195-481a-a531-cb2bd30d04ab'
+                        }
+                        Action = 'NotApproved'
+                        ComputerTargetGroupId = '14adceba-ddf3-4299-9c1a-e4cf8bd56c47'
+                    }
+                )
+            },
+            [pscustomobject] @{
+                Id = [pscustomobject] @{
+                    UpdateId = '5df07312-fca5-43af-a72d-5ac84c0596d9'
+                    RevisionNumber = 201
+                }
+                Title = 'Critical Update for...'
+                UpdateApprovals = @(
+                    [pscustomobject] @{
+                        Id = [pscustomobject] @{
+                            GUID = '2696a1d3-b612-4458-8ed3-708f995b73ba'
+                        }
+                        Action = 'Install'
+                        ComputerTargetGroupId = '4be27a8d-b969-4a8a-9cae-ec6b3a282b0b'
+                    }
+                )
+            },
+            [pscustomobject] @{
+                Id = [pscustomobject] @{
+                    UpdateId = '2a56c7b4-2d7f-4390-8cd5-b0169d559327'
+                    RevisionNumber = 200
+                }
+                Title = 'Critical Update for...'
+                UpdateApprovals = @(
+                )
+            }
+        )
+
+        foreach ($Update in $Updates)
+        {
+            Add-Member -InputOBject $Update -MemberType ScriptMethod -Name GetUpdateApprovals -Value {
+                return $this.UpdateApprovals
+            }
+
+            Add-Member -InputOBject $Update -MemberType ScriptMethod -Name Approve -Value {
+                return  [pscustomobject] @{
+                    Id = [pscustomobject] @{
+                        GUID = '93e7cf4f-eb92-477a-9111-82ef103d8284'
+                    }
+                }
+            }
+
+            foreach ($UpdateApproval in $Update.UpdateApprovals)
+            {
+                Add-Member -InputOBject $UpdateApproval -MemberType ScriptMethod -Name Delete -Value {}
+            }
+        }
+
+        return $Updates
+    }
+
     $WsusServer | Add-Member -MemberType ScriptMethod -Name CreateComputerTargetGroup -Value {
         param
         (
@@ -201,6 +278,35 @@ function Get-WsusServer
                 return $Categories
             }
             return $Subscription
+    }
+
+    $WsusServer | Add-Member -MemberType ScriptMethod -Name GetUpdates -Value $Updates
+
+    $WsusServer | Add-Member -MemberType ScriptMethod -Name GetUpdate -Value {
+        $Update = ( $this.GetUpdates() | Where-Object -FilterScript {
+            $_.Id.UpdateId -eq $this.UpdateRevisionId.UpdateId -and `
+            $_.Id.RevisionNumber -eq $this.UpdateRevisionId.RevisionNumber
+        } )
+
+        if ($null -ne $Update)
+        {
+            return $Update
+        }
+        else
+        {
+            throw 'Exception calling "GetUpdate" with "1" argument(s): "The specified item could not be found in the database.'
+        }
+    }
+
+    $WsusServer | Add-Member -MemberType ScriptMethod -Name GetUpdateApproval -Value {
+        $UpdateApproval =  [pscustomobject] @{
+            Id = [pscustomobject] @{
+                GUID = '4be27a8d-b969-4a8a-9cae-ec6b3a282b0b'
+            }
+        }
+
+        Add-Member -InputOBject $UpdateApproval -MemberType ScriptMethod -Name Delete -Value {}
+        return $UpdateApproval
     }
 
     $WsusServer | Add-Member -MemberType ScriptMethod -Name GetConfiguration -Value {
